@@ -7,14 +7,15 @@ import {
   Platform,
   View,
   TextInput,
+  Alert,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
 import { Form } from '@unform/mobile';
 import { FormHandles } from '@unform/core';
+import * as Yup from 'yup';
 import logoImg from '../../assets/Logo.png';
 import Button from '../../components/Button';
 import Input from '../../components/Input';
-
 import {
   Container,
   Title,
@@ -23,14 +24,50 @@ import {
   CreateAccountButtonText,
   CreateAccountButton,
 } from './styles';
+import validationError from '../../utils/getValidationErrors';
 
 const SignIn: React.FC = () => {
   const navigation = useNavigation();
   const FormRef = useRef<FormHandles>(null);
   const InputPasswordRef = useRef<TextInput>(null);
 
-  const handleSignIn = useCallback((data: object) => {
-    console.log(data);
+  interface SignInFormData {
+    email: string;
+    password: string;
+  }
+  const handleLogin = useCallback(async (data: SignInFormData) => {
+    try {
+      FormRef.current?.setErrors({});
+
+      const schema = Yup.object().shape({
+        email: Yup.string()
+          .required('E-mail obrigatório')
+          .email('Digite um e-mail válido'),
+        password: Yup.string().required('Senha obrigatória'),
+      });
+
+      await schema.validate(data, {
+        abortEarly: false,
+      });
+
+      // await signIn({
+      //   email: data.email,
+      //   password: data.password,
+      // });
+    } catch (error) {
+      if (error instanceof Yup.ValidationError) {
+        const errors = validationError(error);
+
+        FormRef.current?.setErrors(errors);
+
+        return;
+      }
+
+      Alert.alert(
+        'Erro na autenticação',
+        'Ocorreu um erro ao fazer login, cheque as credenciais.',
+      );
+    }
   }, []);
 
   return (
@@ -54,7 +91,7 @@ const SignIn: React.FC = () => {
             <Form
               ref={FormRef}
               style={{ width: '100%' }}
-              onSubmit={handleSignIn}
+              onSubmit={handleLogin}
             >
               <Input
                 autoCorrect={false}
