@@ -32,44 +32,47 @@ const SignUp: React.FC = () => {
 
   const navigation = useNavigation();
 
-  const handleRegister = useCallback(async (data: SignUpFormData) => {
-    try {
-      FormRef.current?.setErrors({});
+  const handleRegister = useCallback(
+    async (data: SignUpFormData) => {
+      try {
+        FormRef.current?.setErrors({});
 
-      const schema = Yup.object().shape({
-        name: Yup.string().required('Nome obrigatório'),
-        email: Yup.string()
-          .required('E-mail obrigatório')
-          .email('Digite um e-mail válido'),
-        password: Yup.string().min(6, 'No mínimo 6 dígitos'),
-      });
+        const schema = Yup.object().shape({
+          name: Yup.string().required('Nome obrigatório'),
+          email: Yup.string()
+            .required('E-mail obrigatório')
+            .email('Digite um e-mail válido'),
+          password: Yup.string().min(6, 'No mínimo 6 dígitos'),
+        });
 
-      await schema.validate(data, {
-        abortEarly: false,
-      });
+        await schema.validate(data, {
+          abortEarly: false,
+        });
 
-      await api.post('/users', data);
+        await api.post('/users', data);
 
-      Alert.alert('Cadastro efetuado com sucesso!', 'Faça seu logon');
+        Alert.alert('Cadastro efetuado com sucesso!', 'Faça seu logon');
 
-      navigation.goBack();
-    } catch (error) {
-      console.log(error.message, 'erro');
+        navigation.goBack();
+      } catch (error) {
+        console.log(error.message, 'erro');
 
-      if (error instanceof Yup.ValidationError) {
-        const errors = validationError(error);
+        if (error instanceof Yup.ValidationError) {
+          const errors = validationError(error);
 
-        FormRef.current?.setErrors(errors);
+          FormRef.current?.setErrors(errors);
 
-        return;
+          return;
+        }
+
+        Alert.alert(
+          'Erro na autenticação',
+          'Ocorreu um erro ao fazer o cadastro.',
+        );
       }
-
-      Alert.alert(
-        'Erro na autenticação',
-        'Ocorreu um erro ao fazer o cadastro.',
-      );
-    }
-  }, []);
+    },
+    [navigation],
+  );
 
   return (
     <>
