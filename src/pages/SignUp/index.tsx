@@ -18,6 +18,7 @@ import Button from '../../components/Button';
 import Input from '../../components/Input';
 import { Container, Title, BackToSignInText, BackToSignIn } from './styles';
 import validationError from '../../utils/getValidationErrors';
+import api from '../../services/api';
 
 interface SignUpFormData {
   email: string;
@@ -47,11 +48,11 @@ const SignUp: React.FC = () => {
         abortEarly: false,
       });
 
-      // await api.post('/users', data);
-
-      // history.push('/');
+      await api.post('/users', data);
 
       Alert.alert('Cadastro efetuado com sucesso!', 'Faça seu logon');
+
+      navigation.goBack();
     } catch (error) {
       console.log(error.message, 'erro');
 
