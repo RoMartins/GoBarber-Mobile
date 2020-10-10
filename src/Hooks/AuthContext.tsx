@@ -20,11 +20,13 @@ interface Auth {
   user: object;
   signIn(credentials: SignInCredentials): Promise<void>;
   signOut(): void;
+  loading: boolean;
 }
 const AuthContext = createContext<Auth>({} as Auth);
 
 const AuthProvider: React.FC = ({ children }) => {
   const [data, setData] = useState<AuthState>({} as AuthState);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function LoadStorageData(): Promise<void> {
@@ -36,6 +38,7 @@ const AuthProvider: React.FC = ({ children }) => {
       if (token[1] && user[1]) {
         setData({ token: token[1], user: JSON.parse(user[1]) });
       }
+      setLoading(false);
     }
 
     LoadStorageData();
@@ -65,7 +68,7 @@ const AuthProvider: React.FC = ({ children }) => {
     setData({} as AuthState);
   }, []);
   return (
-    <AuthContext.Provider value={{ user: data.user, signIn, signOut }}>
+    <AuthContext.Provider value={{ user: data.user, signIn, loading, signOut }}>
       {children}
     </AuthContext.Provider>
   );
